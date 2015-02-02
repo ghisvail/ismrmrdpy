@@ -26,4 +26,37 @@ from __future__ import absolute_import, division, print_function
 
 
 class Dataset(object):
-    pass
+    """
+    """
+    def __init__(self, *args, **kwargs):
+        pass
+        
+    def open(self):
+        pass
+        
+    def close(self):
+        pass
+        
+    def read_header(self):
+        pass
+        
+    def write_header(self, xmlstring):
+        pass
+    
+    def append_acquisition(self, acq):
+        pass
+        
+    def read_acquisition(self, index):
+        pass
+        
+    def append_image(self, img):
+        pass
+        
+    def read_image(self, index):
+        pass
+        
+    def append_array(self, arr):
+        pass
+        
+    def read_array(self, index):
+        pass

@@ -26,20 +26,119 @@ from __future__ import absolute_import, division, print_function
 
 
 class AcquisitonHeader(object):
-    pass
+    """
+    """
+    def __init__(self, *args, **kwargs):
+        pass
+    
+    def __getitem__(self, key):
+        pass
+        
+    def __setitem__(self, key, value):
+        pass
+        
+    def clear_channels(self, indices=None)
+        pass
+
+    def set_channels(self, indices=None):
+        pass
+    
+    def is_channel_active(self, index):
+        pass
+    
+    def clear_flags(self, indices=None):
+        pass
+
+    def set_flags(self, indices=None):
+        pass
+
+    def is_flag_set(self, index):
+        pass
+
+    @classmethod
+    def frombytes(cls, *args, **kwargs):
+        pass
+
+    def tobytes(self):
+        pass
 
 
 class Acquisiton(object):
-    pass
+    """
+    """
+    def __init__(self, *args, **kwargs):
+        pass
+
+    @property
+    def header(self):
+        pass
+
+    @property
+    def data(self):
+        pass
+        
+    @property
+    def traj(self):
+        pass
+
+    @classmethod
+    def frombytes(cls, *args, **kwargs):
+        pass
+        
+    def tobytes(self):
+        pass
 
 
 class ImageHeader(object):
-    pass
+    """
+    """
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def __getitem__(self, key):
+        pass
+        
+    def __setitem__(self, key, value):
+        pass
+
+    def clear_flags(self, indices=None):
+        pass
+
+    def set_flags(self, indices=None):
+        pass
+
+    def is_flag_set(self, index):
+        pass
+
+    @classmethod
+    def frombytes(cls, *args, **kwargs):
+        pass
+        
+    def tobytes(self):
+        pass
 
 
 class Image(object):
-    pass
+    """
+    """
+    def __init__(self, *args, **kwargs):
+        pass
 
+    @property
+    def header(self):
+        pass
 
-class NDArray(object):
-    pass
+    @property
+    def attribute_string(self):
+        pass
+
+    @property
+    def data(self):
+        pass
+
+    @classmethod
+    def frombytes(cls, *args, **kwargs):
+        pass
+        
+    def tobytes(self):
+        pass
