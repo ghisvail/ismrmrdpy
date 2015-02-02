@@ -23,3 +23,23 @@
 # SUCH DAMAGE.
 
 from __future__ import absolute_import, division, print_function
+
+
+class AcquisitonHeader(object):
+    pass
+
+
+class Acquisiton(object):
+    pass
+
+
+class ImageHeader(object):
+    pass
+
+
+class Image(object):
+    pass
+
+
+class NDArray(object):
+    pass
