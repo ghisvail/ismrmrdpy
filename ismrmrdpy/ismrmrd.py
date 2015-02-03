@@ -23,19 +23,27 @@
 # SUCH DAMAGE.
 
 from __future__ import absolute_import, division, print_function
+from .core import *
+import numpy
 
 
 class AcquisitonHeader(object):
     """
     """
-    def __init__(self, *args, **kwargs):
-        pass
-    
+    def __init__(self, version=ismrmrd_libver, **kwargs):
+        # TODO: more granular constructor
+        self._data = numpy.zeros((), dtype=acquisition_header_dtype)
+        self['version'] = version
+        for kwarg in kwargs:
+            self.__setitem__(kwargs)
+        
     def __getitem__(self, key):
-        pass
+        return self._data.__getitem__(key)
         
     def __setitem__(self, key, value):
-        pass
+        # TODO: do not allow direct manip. of channel mask
+        # TODO: do not allow direct manip. of flags
+        self._data.__setitem__(key, value)
         
     def clear_channels(self, indices=None)
         pass
@@ -55,38 +63,45 @@ class AcquisitonHeader(object):
     def is_flag_set(self, index):
         pass
 
-    @classmethod
-    def frombytes(cls, *args, **kwargs):
-        pass
-
+    def toarray(self):
+        return self._data
+        
     def tobytes(self):
-        pass
+        return self._data.tostring()
 
 
 class Acquisiton(object):
     """
     """
-    def __init__(self, *args, **kwargs):
-        pass
+    def __init__(self, head, data=None, traj=None, *args, **kwargs):
+        self._head = head
+        self._data = (data if data is not None else
+            numpy.zeros(self.dtype['data']))
+        self._traj = (data if data is not None else
+            numpy.zeros(self.dtype['traj']))            
 
     @property
-    def header(self):
-        pass
+    def head(self):
+        return self._head
 
     @property
     def data(self):
-        pass
+        return self._data
         
     @property
     def traj(self):
-        pass
+        return self._traj
 
-    @classmethod
-    def frombytes(cls, *args, **kwargs):
-        pass
+    @property
+    def dtype(self):
+        return make_acquisition_dtype(self.head)
+
+    def toarray(self):
+        return numpy.array((self.head, self.traj, self.data),
+                           dtype=self.dtype)
         
     def tobytes(self):
-        pass
+        return self.toarray().tostring()
 
 
 class ImageHeader(object):
@@ -110,12 +125,11 @@ class ImageHeader(object):
     def is_flag_set(self, index):
         pass
 
-    @classmethod
-    def frombytes(cls, *args, **kwargs):
-        pass
+    def toarray(self):
+        return self._data
         
     def tobytes(self):
-        pass
+        return self._data.tostring()
 
 
 class Image(object):
@@ -125,7 +139,7 @@ class Image(object):
         pass
 
     @property
-    def header(self):
+    def head(self):
         pass
 
     @property
