@@ -48,15 +48,24 @@ class Dataset(object):
         
     def read_acquisition(self, index):
         pass
-        
+
+    def number_of_acquisitions(self):
+        pass
+
     def append_image(self, img):
         pass
         
     def read_image(self, index):
         pass
-        
+
+    def number_of_images(self):
+        pass
+
     def append_array(self, arr):
         pass
         
     def read_array(self, index):
+        pass
+
+    def number_of_arrays(self):
         pass
