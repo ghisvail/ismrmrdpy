@@ -22,84 +22,14 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 
-from .constants import *
+from .declarations import *
 import numpy
 
-__all__ = ('ismrmrd_libver', 'encoding_counters_dtype', 
-           'acquisition_header_dtype', 'image_header_dtype',
-           'make_acquisition_dtype', 'make_image_dtype')
-
+__all__ = ('ismrmrd_libver', 'acquisition_header_dtype',
+           'make_acquisition_dtype', 'image_header_dtype',
+           'make_image_dtype')
 
 ismrmrd_libver = ISMRMRD_VERSION
-
-encoding_counters_dtype = numpy.dtype([
-    ('kspace_encode_step_1',        '<u2'),
-    ('kspace_encode_step_2',        '<u2'),
-    ('average',                     '<u2'),
-    ('slice',                       '<u2'),
-    ('contrast',                    '<u2'),
-    ('phase',                       '<u2'),
-    ('repetition',                  '<u2'),
-    ('set',                         '<u2'),
-    ('segment',                     '<u2'),
-    ('user',                        ('<u2', (ISMRMRD_USER_INTS,))),
-])
-
-acquisition_header_dtype = numpy.dtype([
-    ('version',                     '<u2'),
-    ('flags',                       '<u8'),
-    ('measurement_uid',             '<u4'),
-    ('scan_counter',                '<u4'),
-    ('acquisition_time_stamp',      '<u4'),
-    ('physiology_time_stamp',       ('<u4', (ISMRMRD_PHYS_STAMPS))),
-    ('number_of_samples',           '<u2'),
-    ('available_channels',          '<u2'),
-    ('active_channels',             '<u2'),
-    ('channel_mask',                ('<u8', (ISMRMRD_CHANNEL_MASKS,))),
-    ('discard_pre',                 '<u2'),
-    ('discard_post',                '<u2'),
-    ('center_sample',               '<u2'),
-    ('encoding_space_ref',          '<u2'),
-    ('trajectory_dimensions',       '<u2'),
-    ('sample_time_us',              '<f4'),
-    ('position',                    ('<f4', (ISMRMRD_POSITION_LENGTH,))),
-    ('read_dir',                    ('<f4', (ISMRMRD_DIRECTION_LENGTH,))),
-    ('phase_dir',                   ('<f4', (ISMRMRD_DIRECTION_LENGTH,))),
-    ('slice_dir',                   ('<f4', (ISMRMRD_DIRECTION_LENGTH,))),
-    ('patient_table_position',      ('<f4', (ISMRMRD_POSITION_LENGTH,))),
-    ('idx',                         encoding_counters_dtype),
-    ('user_int',                    ('<u4', (ISMRMRD_USER_INTS,))),
-    ('user_float',                  ('<f4', (ISMRMRD_USER_FLOATS,))),
-])
-
-image_header_dtype = numpy.dtype([
-    ('version',                     '<u2'),
-    ('data_type',                   '<u2'),
-    ('flags',                       '<u8'),
-    ('measurement_uid',             '<u4'),
-    ('matrix_size',                 ('<u2', (3,))),
-    ('field_of_view',               ('<f4', (3,))),
-    ('channels',                    '<u2'),
-    ('position',                    ('<f4', (ISMRMRD_POSITION_LENGTH,))),
-    ('read_dir',                    ('<f4', (ISMRMRD_DIRECTION_LENGTH,))),
-    ('phase_dir',                   ('<f4', (ISMRMRD_DIRECTION_LENGTH,))),
-    ('slice_dir',                   ('<f4', (ISMRMRD_DIRECTION_LENGTH,))),
-    ('patient_table_position',      ('<f4', (ISMRMRD_POSITION_LENGTH,))),
-    ('average',                     '<u2'),
-    ('slice',                       '<u2'),
-    ('contrast',                    '<u2'),
-    ('phase',                       '<u2'),
-    ('repetition',                  '<u2'),
-    ('set',                         '<u2'),
-    ('acquisition_time_stamp',      '<u4'),
-    ('physiology_time_stamp',       ('<u4', (ISMRMRD_PHYS_STAMPS))),
-    ('image_type',                  '<u2'),
-    ('image_index',                 '<u2'),
-    ('image_series_index',          '<u2'),
-    ('user_int',                    ('<u4', (ISMRMRD_USER_INTS,))),
-    ('user_float',                  ('<f4', (ISMRMRD_USER_FLOATS,))),
-    ('attribute_string_len',        '<u4'),
-])
 
 _ismrmrd_typenums_to_numpy_dtypes = {
     ISMRMRD_USHORT   : numpy.uint16,
