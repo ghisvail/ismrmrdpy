@@ -25,9 +25,11 @@
 from .declarations import *
 import numpy
 
-__all__ = ('ismrmrd_libver', 'acquisition_header_dtype',
-           'make_acquisition_dtype', 'image_header_dtype',
-           'make_image_dtype')
+__all__ = ('ismrmrd_libver', 'make_acquisition_dtype', 'make_acquisition',
+           'make_image_dtype', 'make_image')
+# from declarations
+__all__ += ('acquisition_header_dtype', 'image_header_dtype')
+
 
 ismrmrd_libver = ISMRMRD_VERSION
 
@@ -55,6 +57,11 @@ def make_acquisition_dtype(header):
         ('data',    (data_dtype, data_shape)),
     ])
 
+def make_acquisition(header):
+    obj = numpy.zeros((), dtype=make_acquisition_dtype(header))
+    obj['head'] = header
+    return obj
+
 def make_image_dtype(header):
     data_dtype = _ismrmrd_typenums_to_numpy_dtypes[header['data_type']]
     data_shape = (list(header['matrix_size']) + [header['channels']])[::-1]
@@ -64,3 +71,8 @@ def make_image_dtype(header):
         ('attribute_string',    attr_dtype),
         ('data',                (data_dtype, data_shape))
     ])
+
+def make_image(header):
+    obj = numpy.zeros((), dtype=make_image_dtype(header))
+    obj['head'] = header
+    return obj
