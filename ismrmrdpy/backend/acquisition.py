@@ -8,6 +8,8 @@
 
 from __future__ import absolute_import, division, print_function
 
+from .constants import Constants, AcquisitionFlags, acquisition_header_dtype
+
 
 def make_header(*args, **kwargs):
     pass
@@ -15,7 +17,7 @@ def make_header(*args, **kwargs):
 def make_dtype(header):
     pass
 
-def make_object(header, *args, **kwargs):
+def make_array(header=None, *args, **kwargs):
     pass
 
 def frombytes(bytestring):
