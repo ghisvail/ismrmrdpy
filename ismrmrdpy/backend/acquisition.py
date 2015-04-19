@@ -10,10 +10,49 @@ from __future__ import absolute_import, division, print_function
 
 from .constants import Constants, AcquisitionFlags, DataTypes
 from .constants import acquisition_header_dtype, ismrmrd_to_numpy_dtypes
+from .bitmask import BitMaskWrapper
 import numpy
 
 
 def make_header(version=Constants.version, *args, **kwargs):
+    """Generates an array of type ISMRMRD acquisition header.
+    
+    Generates a Numpy array whose dtype satisfies the ISMRMRD acquisition 
+    header data structure specifications.
+    
+    Parameters
+    ----------
+    version : int, optional
+        Version of the ISMRMRD acquisition header specifications. Should be 
+        left to its default value, which is defined in the `constants` module.
+    **kwargs
+        Optional initialization values for ISMRMRD acquisition header 
+        metadata.
+        
+    Returns
+    -------
+    ndarray
+        ISMRMRD acquisition header.
+    
+    Examples
+    --------
+    By default, all items in the resulting array defaults to 0, besides 
+    version.
+    
+    >>> hdr = make_header()
+    >>> print(hdr['number_of_samples'])
+    0
+    
+    Alternative default values may be provided using the corresponding keyword 
+    argument.
+    
+    >>> hdr = make_header(number_of_samples=256, active_channels=8)
+    >>> print(hdr['number_of_samples'])
+    256
+    >>> print(hdr['active_channels'])
+    8
+    
+    """
     header = numpy.zeros((), dtype=acquisition_header_dtype)
     header['version'] = version
     for key in kwargs:
@@ -21,7 +60,31 @@ def make_header(version=Constants.version, *args, **kwargs):
             header[key] = kwargs[key]
     return header    
 
+def deserialize_header(bytestring):
+    """Deserialize an ISMRMRD acquisition header from an arbitrary string of 
+    bytes.
+    """
+    return numpy.fromstring(bytestring, dtype=acquisition_header_dtype)[0]
+
 def make_dtype(header):
+    """Dynamically generate the ISMRMRD acquisition dtype.
+    
+    Helper function for generating the ISMRMRD acquisition dtype described by 
+    its header.
+    
+    Parameters
+    ----------
+    header : dict-like
+        Object containing the required metadata information to construct the 
+        ISMRMRD acquisition dtype, i.e. number_of_samples, active_channels and 
+        trajectory_dimensions.
+        
+    Returns
+    -------
+    numpy.dtype
+        ISMRMRD acquisition dtype.
+    
+    """
     data_dtype = ismrmrd_to_numpy_dtypes[DataTypes.cxfloat]
     data_shape = (header['active_channels'],
                   header['number_of_samples'])
@@ -35,9 +98,34 @@ def make_dtype(header):
     ])
 
 def make_object(header=None, *args, **kwargs):
+    """Generates an array of type ISMRMRD acquisition.
+    
+    Generates a Numpy array whose dtype satisfies the ISMRMRD acquisition 
+    data structure specifications.   
+    
+    Parameters
+    ----------
+    header : ndarray, optional
+        Array containing the ISMRMRD acquisition header metadata, generated 
+        using the `make_head` function. If not specified, a header is 
+        generated from the optional keyword arguments.
+    *args
+        Optional trajectory [0] and data arrays [1] to initialize the 
+        acquisition with. Both should be provided in order to override the 
+        default value, which is to initialize both arrays with 0.
+    **kwargs
+        Optional keyword arguments, used internally for generating a header 
+        if the latter is missing from the argument list.
+    
+    Returns
+    -------
+    ndarray
+        ISMRMRD acquisition object.
+    
+    """
     header = header or make_header(**kwargs)
-    trajectory = None
-    data = None
+    trajectory = args[0] if len(args) >= 2 else None
+    data = args[1] if len(args) >= 2 else None
     dtype = make_dtype(header)
     array = numpy.zeros((), dtype=dtype)
     array['head'] = header
@@ -45,30 +133,69 @@ def make_object(header=None, *args, **kwargs):
         array['traj'] = trajectory
     if data is not None:
         array['data'] = data
+    return array
 
-def frombytes(bytestring):
-    pass
+def deserialize_object(bytestring):
+    """Deserialize an ISMRMRD acquisition object from an arbitrary string of 
+    bytes.
+    """
+    header = deserialize_header(bytestring)
+    return numpy.fromstring(bytestring, dtype=make_dtype(header))[0]
 
 def set_flags(header, flags=None):
-    pass
-
+    """Utility function for management of flag related metadata."""
+    bitmask = BitMaskWrapper(header['flags'])    
+    if flags is not None:
+        _verify_flags(flags)
+        bitmask.set([flag-1 for flag in flags])
+    else:
+        bitmask.set()
+    
 def clear_flags(header, flags=None):
-    pass
+    """Utility function for management of flag related metadata."""
+    bitmask = BitMaskWrapper(header['flags'])    
+    if flags is not None:
+        _verify_flags(flags)
+        bitmask.clear([flag-1 for flag in flags])
+    else:
+        bitmask.clear()
 
 def is_flag_set(header, flag):
-    pass
+    """Utility function for management of flag related metadata."""
+    bitmask = BitMaskWrapper(header['flags'])
+    _verify_flags([flag,])
+    return bitmask.is_set(flag-1)    
 
 def _verify_flags(flags):
-    pass
+    """Utility function for management of flag related metadata."""
+    for flag in flags:
+        if flag not in AcquisitionFlags:
+            raise ValueError("Invalid flag provided: {}.".format(flag))
 
 def set_channels(header, channels=None):
-    pass
+    """Utility function for management of channel related metadata."""
+    bitmask = BitMaskWrapper(header['channel_mask'])
+    if channels is not None:
+        _verify_channels(channels)
+        bitmask.set([channel-1 for channel in channels])
+    header['active_channels'] = bitmask.count()
 
 def clear_channels(header, channels=None):
-    pass
+    """Utility function for management of channel related metadata."""
+    bitmask = BitMaskWrapper(header['channel_mask'])
+    if channels is not None:
+        _verify_channels(channels)
+        bitmask.clear([channel-1 for channel in channels])
+    header['active_channels'] = bitmask.count()
 
 def is_channel_set(header, channel):
-    pass
+    """Utility function for management of channel related metadata."""
+    bitmask = BitMaskWrapper(header['channel_mask'])
+    _verify_channels([channel,])
+    return bitmask.is_set(channel-1) 
 
-def _verify_channels(flags):
-    pass    
+def _verify_channels(channels):
+    """Utility function for management of channel related metadata."""
+    for channel in channels:
+        if channel < 1:
+            raise ValueError("Invalid channel provided: {}.".format(channel))
