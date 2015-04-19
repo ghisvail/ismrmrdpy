@@ -34,7 +34,7 @@ def make_dtype(header):
         ('data',    (data_dtype, data_shape)),
     ])
 
-def make_array(header=None, *args, **kwargs):
+def make_object(header=None, *args, **kwargs):
     header = header or make_header(**kwargs)
     trajectory = None
     data = None
