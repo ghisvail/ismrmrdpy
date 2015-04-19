@@ -58,4 +58,4 @@ def test_object_creation():
     array = acquisition.make_object(header)
     assert(array['head'] == header)
     assert(not numpy.any(array['traj']))  # trajectory should only contain zeros
-    assert(not numpy.any(array['data']))  # data should only contain zeros
+    assert(not numpy.any(array['data']))  # data should only contain zeros     
