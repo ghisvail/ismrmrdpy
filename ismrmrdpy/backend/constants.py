@@ -108,7 +108,7 @@ encoding_counters_dtype = numpy.dtype([
     ('repetition',                  '<u2'),
     ('set',                         '<u2'),
     ('segment',                     '<u2'),
-    ('user',                        ('<u2', Constants.user_ints)),
+    ('user',                        ('<u2', int(Constants.user_ints))),
 ])
 
 # from ISMRMRD_AcquisitionHeader
@@ -118,25 +118,25 @@ acquisition_header_dtype = numpy.dtype([
     ('measurement_uid',             '<u4'),
     ('scan_counter',                '<u4'),
     ('acquisition_time_stamp',      '<u4'),
-    ('physiology_time_stamp',       ('<u4', Constants.phys_stamps)),
+    ('physiology_time_stamp',       ('<u4', int(Constants.phys_stamps))),
     ('number_of_samples',           '<u2'),
     ('available_channels',          '<u2'),
     ('active_channels',             '<u2'),
-    ('channel_mask',                ('<u8', Constants.channel_masks)),
+    ('channel_mask',                ('<u8', int(Constants.channel_masks))),
     ('discard_pre',                 '<u2'),
     ('discard_post',                '<u2'),
     ('center_sample',               '<u2'),
     ('encoding_space_ref',          '<u2'),
     ('trajectory_dimensions',       '<u2'),
     ('sample_time_us',              '<f4'),
-    ('position',                    ('<f4', Constants.position_length)),
-    ('read_dir',                    ('<f4', Constants.direction_length)),
-    ('phase_dir',                   ('<f4', Constants.direction_length)),
-    ('slice_dir',                   ('<f4', Constants.direction_length)),
-    ('patient_table_position',      ('<f4', Constants.position_length)),
+    ('position',                    ('<f4', int(Constants.position_length))),
+    ('read_dir',                    ('<f4', int(Constants.direction_length))),
+    ('phase_dir',                   ('<f4', int(Constants.direction_length))),
+    ('slice_dir',                   ('<f4', int(Constants.direction_length))),
+    ('patient_table_position',      ('<f4', int(Constants.position_length))),
     ('idx',                         encoding_counters_dtype),
-    ('user_int',                    ('<i4', Constants.user_ints)),
-    ('user_float',                  ('<f4', Constants.user_floats)),
+    ('user_int',                    ('<i4', int(Constants.user_ints))),
+    ('user_float',                  ('<f4', int(Constants.user_floats))),
 ])
 
 # from ISMRMRD_ImageHeader
