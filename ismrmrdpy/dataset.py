@@ -1,71 +1,75 @@
-# Copyright (c) 2014-2015 Ghislain Antony Vaillant.
+# -*- coding: utf-8 -*-
+#
+# Copyright (c) 2014-2015, Ghislain Antony Vaillant
 # All rights reserved.
-# 
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions
-# are met:
-# 1. Redistributions of source code must retain the above copyright
-#    notice, this list of conditions and the following disclaimer.
-# 2. Redistributions in binary form must reproduce the above copyright
-#    notice, this list of conditions and the following disclaimer in the
-#    documentation and/or other materials provided with the distribution.
-# 
-# THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
-# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-# ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
-# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
-# OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
-# OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
-# SUCH DAMAGE.
+#
+# This file is distributed under the BSD License, see the LICENSE file or
+# checkout the license terms at http://opensource.org/licenses/BSD-2-Clause).
 
 from __future__ import absolute_import, division, print_function
 
+from ismrmrdpy.backend.constants import (acquisition_header_dtype,
+                                         image_header_dtype)
+from ismrmrdpy.backend import acquisition
+from ismrmrdpy.backend.hdf5 import as_hdf5_acquisition
+import h5py
+
+
+class AcquisitionListProxy(object):
+    
+    def __init__(self, dset):
+        self._dset = dset
+
+    def __getitem__(self, index):
+        return acquisition.make_object(
+            head=self._dset[index]['head'],
+            traj=self._dset[index]['traj'],
+            data=self._dset[index]['data'])
+        
+    def __setitem__(self, index, value):
+        if index > len(self):
+            raise ValueError("Invalid index.")
+        if value['head'].dtype != acquisition_header_dtype:
+            raise TypeError("Invalid value type.")
+        self._dset[index] = as_hdf5_acquisition(value)
+
+    def __len__(self):
+        return self._dset.shape[0]
+
+    def append(self, value): 
+        index = len(self)
+        self._dset.resize(1+len(self), axis=0)
+        self.__setitem__(index, value)
+
 
 class Dataset(object):
-    """
-    """
-    def __init__(self, *args, **kwargs):
-        pass
-        
-    def open(self):
-        pass
-        
-    def close(self):
-        pass
-        
-    def read_header(self):
-        pass
-        
-    def write_header(self, xmlstring):
-        pass
     
-    def append_acquisition(self, acq):
-        pass
+    def __init__(self, header=None, acquisitions=[], images={}, arrays={},
+                 *args, **kwargs):
+        self.header = header
+        self.acquisitions = acquisitions
+        self.images = images
+        self.arrays = arrays
+    
+    @classmethod
+    def load(cls, filename, *args, **kwargs):
+        fobj = h5py.File(filename, 'a')
+        dset = fobj['dataset']
+        header = dset['xml'][0]
+        acquisitions = AcquisitionListProxy(dset['data'])
+        images = {}
+        arrays = {}
+        for key, val in dset.items():
+            if key not in ('xml', 'data'):
+                if 'head' in val.dtype.fields:
+                    if val.dtype['head'] == image_header_dtype:
+                        images[key] = val
+                else:
+                    arrays[key] = val
+        this = cls(header=header, acquisitions=acquisitions, images=images,
+                   arrays=arrays)
+        this._file = fobj  # keeps the HDF5 dataset alive
+        return this
         
-    def read_acquisition(self, index):
-        pass
-
-    def number_of_acquisitions(self):
-        pass
-
-    def append_image(self, img):
-        pass
-        
-    def read_image(self, index):
-        pass
-
-    def number_of_images(self):
-        pass
-
-    def append_array(self, arr):
-        pass
-        
-    def read_array(self, index):
-        pass
-
-    def number_of_arrays(self):
+    def save(filename, *args, **kwargs):
         pass
