@@ -53,8 +53,9 @@ class Dataset(object):
     
     @classmethod
     def load(cls, filename, *args, **kwargs):
-        fobj = h5py.File(filename, 'a')
-        dset = fobj['dataset']
+        root = h5py.File(filename, 'a')
+        groupname = kwargs.get('groupname', 'dataset')
+        dset = root[groupname]
         header = dset['xml'][0]
         acquisitions = AcquisitionListProxy(dset['data'])
         images = {}
@@ -68,7 +69,7 @@ class Dataset(object):
                     arrays[key] = val
         this = cls(header=header, acquisitions=acquisitions, images=images,
                    arrays=arrays)
-        this._file = fobj  # keeps the HDF5 dataset alive
+        this._root = root  # keeps the HDF5 dataset alive
         return this
         
     def save(filename, *args, **kwargs):
