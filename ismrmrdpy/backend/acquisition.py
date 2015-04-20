@@ -97,7 +97,7 @@ def make_dtype(header):
         ('data',    (data_dtype, data_shape)),
     ])
 
-def make_object(header=None, *args, **kwargs):
+def make_object(head=None, traj=None, data=None, *args, **kwargs):
     """Generates an array of type ISMRMRD acquisition.
     
     Generates a Numpy array whose dtype satisfies the ISMRMRD acquisition 
@@ -105,7 +105,7 @@ def make_object(header=None, *args, **kwargs):
     
     Parameters
     ----------
-    header : ndarray, optional
+    head : ndarray, optional
         Array containing the ISMRMRD acquisition header metadata, generated 
         using the `make_head` function. If not specified, a header is 
         generated from the optional keyword arguments.
@@ -123,16 +123,14 @@ def make_object(header=None, *args, **kwargs):
         ISMRMRD acquisition object.
     
     """
-    header = header or make_header(**kwargs)
-    trajectory = args[0] if len(args) >= 2 else None
-    data = args[1] if len(args) >= 2 else None
-    dtype = make_dtype(header)
+    head = head or make_header(**kwargs)
+    dtype = make_dtype(head)
     array = numpy.zeros((), dtype=dtype)
-    array['head'] = header
-    if trajectory is not None:
-        array['traj'] = trajectory
+    array['head'] = head
+    if traj is not None:
+        array['traj'] = traj.view(dtype['traj'].base).reshape(dtype['traj'].shape)
     if data is not None:
-        array['data'] = data
+        array['data'] = data.view(dtype['data'].base).reshape(dtype['data'].shape)
     return array
 
 def deserialize_object(bytestring):
