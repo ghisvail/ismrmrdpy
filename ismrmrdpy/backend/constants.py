@@ -135,7 +135,7 @@ acquisition_header_dtype = numpy.dtype([
     ('slice_dir',                   ('<f4', Constants.direction_length)),
     ('patient_table_position',      ('<f4', Constants.position_length)),
     ('idx',                         encoding_counters_dtype),
-    ('user_int',                    ('<u4', Constants.user_ints)),
+    ('user_int',                    ('<i4', Constants.user_ints)),
     ('user_float',                  ('<f4', Constants.user_floats)),
 ])
 
@@ -180,3 +180,6 @@ ismrmrd_to_numpy_dtypes = {
     DataTypes.cxfloat: numpy.complex64,
     DataTypes.cxdouble: numpy.complex128,
 }
+
+# Mapping from Numpy dtypes to ismrmrd typenums.
+numpy_to_ismrmrd_dtypes = {v:k for k, v in ismrmrd_to_numpy_dtypes.items()}
