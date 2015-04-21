@@ -50,6 +50,11 @@ setup(
         "Topic :: Scientific/Engineering",
         ],
     packages=find_packages(exclude=['tests',]),
+    install_requires=[
+        'numpy',
+        'h5py>=2.3',
+        'bitarray'
+    ],
     tests_require=['pytest'],
     cmdclass = {'test': IsmrmrdpyTestCommand},
 )
