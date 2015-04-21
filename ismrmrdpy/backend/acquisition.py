@@ -14,6 +14,8 @@ from .bitmask import BitMaskWrapper
 import numpy
 
 
+header_dtype = acquisition_header_dtype
+
 def make_header(version=Constants.version, *args, **kwargs):
     """Generates an array of type ISMRMRD acquisition header.
     
@@ -176,6 +178,8 @@ def set_channels(header, channels=None):
     if channels is not None:
         _verify_channels(channels)
         bitmask.set([channel-1 for channel in channels])
+    else:
+        bitmask.set()
     header['active_channels'] = bitmask.count()
 
 def clear_channels(header, channels=None):
@@ -184,6 +188,8 @@ def clear_channels(header, channels=None):
     if channels is not None:
         _verify_channels(channels)
         bitmask.clear([channel-1 for channel in channels])
+    else:
+        bitmask.clear()
     header['active_channels'] = bitmask.count()
 
 def is_channel_set(header, channel):
