@@ -32,37 +32,44 @@ class AcquisitionFlagsProperty(object):
 class AcquisitionChannelsProperty(object):
     
     def __init__(self, header):
-        self._header = header
+        self._head = header
     
     def set(self, channels=None):
-        acquisition.set_channels(self._header, channels)
+        acquisition.set_channels(self._head, channels)
     
     def clear(self, channels=None):
-        acquisition.clear_channels(self._header, channels)
+        acquisition.clear_channels(self._head, channels)
 
     def is_set(self, channel):
-        return acquisition.is_channel_set(self._header, channel)
+        return acquisition.is_channel_set(self._head, channel)
 
 
 class AcquisitionHeader(object):
     
     def __init__(self, *args, **kwargs):
         if len(args) > 0:
-            self._header = numpy.asarray(args[0], dtype=acquisition.header_dtype)
+            self._head = numpy.asarray(args[0], dtype=acquisition.header_dtype)
         else:
-            self._header = acquisition.make_header(*args, **kwargs)
-        self.flags = AcquisitionFlagsProperty(self._header)
-        self.channels = AcquisitionChannelsProperty(self._header)
+            self._head = acquisition.make_header(*args, **kwargs)
+        self.flags = AcquisitionFlagsProperty(self._head)
+        self.channels = AcquisitionChannelsProperty(self._head)
     
     def __getitem__(self, key):
-        return self._header[key]
+        return self._head[key]
     
     def __setitem__(self, key, value):
         if key in ('flags',):
             raise KeyError("Use the flags attribute to manipulate flag related metadata.")
         if key in ('channel_mask', 'active_channels'):
             raise KeyError("Use the channels attribute to manipulate channel related metadata.")
-        self._header[key] = value
+        self._head[key] = value
+
+    @classmethod
+    def fromstring(cls, bytestring):
+        return cls(acquisition.deserialize_header(bytestring))
+
+    def tostring(self):
+        return self._head.tostring()
 
 
 class Acquisition(object):
@@ -95,9 +102,8 @@ class Acquisition(object):
     def trajectory(self):
         if self._traj is None:
             dtype = acquisition.make_dtype(self.header)
-            self._traj = numpy.zeros(dtype=dtype['traj'])
-        else:
-            return self._traj
+            self._traj = numpy.zeros((), dtype=dtype['traj'])
+        return self._traj
     
     @trajectory.setter
     def trajectory(self, value):
@@ -108,14 +114,29 @@ class Acquisition(object):
     def data(self):
         if self._data is None:
             dtype = acquisition.make_dtype(self.header)
-            self._data = numpy.zeros(dtype=dtype['data'])
-        else:
-            return self._data
+            self._data = numpy.zeros((), dtype=dtype['data'])
+        return self._data
     
     @data.setter
     def data(self, value):
         dtype = acquisition.make_dtype(self.header)
         self._data[:, :] = numpy.asarray(value, dtype=dtype['data'].base).reshape([dtype['data'].shape])
+
+    @classmethod
+    def fromstring(cls, bytestring):
+        obj = acquisition.deserialize_object(bytestring)
+        return cls(
+            header=AcquisitionHeader(obj['head']),
+            trajectory=obj['traj'],
+            data=obj['data']
+        )
+
+    def tostring(self):
+        return acquisition.make_object(
+            head=self.header._head,
+            traj=self.trajectory,
+            data=self.data
+            ).tostring()
 
 
 class ImageHeader(object):
