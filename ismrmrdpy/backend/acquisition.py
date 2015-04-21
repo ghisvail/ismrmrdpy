@@ -55,10 +55,10 @@ def make_header(version=Constants.version, *args, **kwargs):
     8
     
     """
-    header = numpy.zeros((), dtype=acquisition_header_dtype)
+    header = numpy.zeros((), dtype=header_dtype)
     header['version'] = version
     for key in kwargs:
-        if key in acquisition_header_dtype.fields:
+        if key in header_dtype.fields:
             header[key] = kwargs[key]
     return header    
 
@@ -94,7 +94,7 @@ def make_dtype(header):
     traj_shape = (header['number_of_samples'],
                   header['trajectory_dimensions'])
     return numpy.dtype([
-        ('head',    acquisition_header_dtype),
+        ('head',    header_dtype),
         ('traj',    (traj_dtype, traj_shape)),
         ('data',    (data_dtype, data_shape)),
     ])
