@@ -134,12 +134,15 @@ class Acquisition(object):
             data=obj['data']
         )
 
-    def tostring(self):
+    def toarray(self):
         return acquisition.make_object(
             head=self.header.toarray(),
             traj=self.trajectory,
-            data=self.data
-            ).tostring()
+            data=self.data,
+        ) 
+
+    def tostring(self):
+        return self.toarray().tostring()
 
 
 class ImageHeader(object):
