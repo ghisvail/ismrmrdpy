@@ -10,7 +10,7 @@ from __future__ import absolute_import, division, print_function
 
 from .constants import Constants, AcquisitionFlags, DataTypes
 from .constants import acquisition_header_dtype, ismrmrd_to_numpy_dtypes
-from .bitmask import BitMaskWrapper
+from .bitmask import BitmaskWrapper
 import numpy
 
 
@@ -66,7 +66,7 @@ def deserialize_header(bytestring):
     """Deserialize an ISMRMRD acquisition header from an arbitrary string of 
     bytes.
     """
-    return numpy.fromstring(bytestring, dtype=acquisition_header_dtype)[0]
+    return numpy.fromstring(bytestring, dtype=header_dtype)[0]
 
 def make_dtype(header):
     """Dynamically generate the ISMRMRD acquisition dtype.
@@ -139,12 +139,12 @@ def deserialize_object(bytestring):
     """Deserialize an ISMRMRD acquisition object from an arbitrary string of 
     bytes.
     """
-    header = deserialize_header(bytestring)
+    header = deserialize_header(bytestring[:header_dtype.itemsize])
     return numpy.fromstring(bytestring, dtype=make_dtype(header))[0]
 
 def set_flags(header, flags=None):
     """Utility function for management of flag related metadata."""
-    bitmask = BitMaskWrapper(header['flags'])    
+    bitmask = BitmaskWrapper(header['flags'])    
     if flags is not None:
         _verify_flags(flags)
         bitmask.set([flag-1 for flag in flags])
@@ -153,7 +153,7 @@ def set_flags(header, flags=None):
     
 def clear_flags(header, flags=None):
     """Utility function for management of flag related metadata."""
-    bitmask = BitMaskWrapper(header['flags'])    
+    bitmask = BitmaskWrapper(header['flags'])    
     if flags is not None:
         _verify_flags(flags)
         bitmask.clear([flag-1 for flag in flags])
@@ -162,7 +162,7 @@ def clear_flags(header, flags=None):
 
 def is_flag_set(header, flag):
     """Utility function for management of flag related metadata."""
-    bitmask = BitMaskWrapper(header['flags'])
+    bitmask = BitmaskWrapper(header['flags'])
     _verify_flags([flag,])
     return bitmask.is_set(flag-1)    
 
@@ -174,7 +174,7 @@ def _verify_flags(flags):
 
 def set_channels(header, channels=None):
     """Utility function for management of channel related metadata."""
-    bitmask = BitMaskWrapper(header['channel_mask'])
+    bitmask = BitmaskWrapper(header['channel_mask'])
     if channels is not None:
         _verify_channels(channels)
         bitmask.set([channel-1 for channel in channels])
@@ -184,7 +184,7 @@ def set_channels(header, channels=None):
 
 def clear_channels(header, channels=None):
     """Utility function for management of channel related metadata."""
-    bitmask = BitMaskWrapper(header['channel_mask'])
+    bitmask = BitmaskWrapper(header['channel_mask'])
     if channels is not None:
         _verify_channels(channels)
         bitmask.clear([channel-1 for channel in channels])
@@ -194,7 +194,7 @@ def clear_channels(header, channels=None):
 
 def is_channel_set(header, channel):
     """Utility function for management of channel related metadata."""
-    bitmask = BitMaskWrapper(header['channel_mask'])
+    bitmask = BitmaskWrapper(header['channel_mask'])
     _verify_channels([channel,])
     return bitmask.is_set(channel-1) 
 
