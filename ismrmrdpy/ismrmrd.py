@@ -68,8 +68,11 @@ class AcquisitionHeader(object):
     def fromstring(cls, bytestring):
         return cls(acquisition.deserialize_header(bytestring))
 
+    def toarray(self):
+        return self._head
+
     def tostring(self):
-        return self._head.tostring()
+        return self.toarray().tostring()
 
 
 class Acquisition(object):
@@ -133,7 +136,7 @@ class Acquisition(object):
 
     def tostring(self):
         return acquisition.make_object(
-            head=self.header._head,
+            head=self.header.toarray(),
             traj=self.trajectory,
             data=self.data
             ).tostring()
