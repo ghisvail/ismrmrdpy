@@ -69,7 +69,7 @@ class AcquisitionHeader(object):
         return cls(acquisition.deserialize_header(bytestring))
 
     def toarray(self):
-        return self._head
+        return self._head.copy()
 
     def tostring(self):
         return self.toarray().tostring()
