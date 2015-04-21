@@ -25,6 +25,9 @@ class AcquisitionFlagsProperty(object):
     def clear(self, flags=None):
         acquisition.clear_flags(self._header, flags)
 
+    def is_set(self, flag):
+        return acquisition.is_flag_set(self._header, flag)
+
 
 class AcquisitionChannelsProperty(object):
     
@@ -36,6 +39,9 @@ class AcquisitionChannelsProperty(object):
     
     def clear(self, channels=None):
         acquisition.clear_channels(self._header, channels)
+
+    def is_set(self, channel):
+        return acquisition.is_channel_set(self._header, channel)
 
 
 class AcquisitionHeader(object):
