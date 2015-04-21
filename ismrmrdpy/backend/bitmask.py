@@ -8,27 +8,32 @@
 
 from __future__ import absolute_import, division, print_function
 
-import bitstring
+import bitarray
 import numpy
 
 
-class BitMaskWrapper(object):
+class BitmaskWrapper(object):
     
     def __init__(self, array, *args, **kwargs):
         self._array = array
-        self._bitmask = bitstring.BitArray(bytes=self._array.tostring())
+        self._bitmask = bitarray.bitarray(endian='little')
+        self._bitmask.frombytes(array.tostring())
         
     def clear(self, indices=None):
         if indices is not None:
-            self._bitmask.set(False, indices)
+            for indice in indices:
+                self._bitmask[indice] = 0
         else:
-            self._bitmask[:] = False
+            self._bitmask.setall(0)
+        self._update()
     
     def set(self, indices=None):
         if indices is not None:
-            self._bitmask.set(True, indices)
+            for indice in indices:
+                self._bitmask[indice] = 1
         else:
-            self._bitmask[:] = True
+            self._bitmask.setall(1)
+        self._update()
     
     def is_set(self, indice):
         return self._bitmask[indice]
