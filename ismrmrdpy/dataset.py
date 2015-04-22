@@ -167,7 +167,7 @@ class IsmrmrdHeaderProxy(object):
         return self._dset['xml'][0].decode('utf-8')
 
 
-class Dataset(object):
+class OldDataset(object):
     
     def __init__(self, header=None, acquisitions=[], images={}, arrays={},
                  *args, **kwargs):
@@ -192,3 +192,88 @@ class Dataset(object):
         
     def save(filename, *args, **kwargs):
         pass
+
+
+
+class Dataset(object):
+    
+    def __init__(self, header=None, acquisitions=[],
+                 images={}, arrays={}, *args, **kwargs):
+        self.header = header
+        self.acquisitions = acquisitions
+        self.images = images
+        self.arrays = arrays
+
+
+class Hdf5HeaderProxy(object):
+    
+    def __init__(self, group):
+        pass
+
+
+class Hdf5AcquisitionsProxy(object):
+    
+    def __init__(self, group):
+        pass
+
+
+class Hdf5ImagesProxy(object):
+    
+    def __init__(self, group):
+        pass
+
+
+class Hdf5ArraysProxy(object):
+    
+    def __init__(self, group):
+        pass
+
+
+class File(object):
+    
+    def __init__(self, name):
+        self._file = h5py.File(name)
+    
+    def create_dataset(self, name):
+        group = self._file.create_group(name)
+        return Dataset(
+            header=Hdf5HeaderProxy(group),
+            acquisitions=Hdf5AcquisitionsProxy(group),
+            images=Hdf5ImagesProxy(group),
+            arrays=Hdf5ArraysProxy(group),
+        )
+    
+    def require_dataset(self, name):
+        group = self._file.require_group(name)
+        return Dataset(
+            header=Hdf5HeaderProxy(group),
+            acquisitions=Hdf5AcquisitionsProxy(group),
+            images=Hdf5ImagesProxy(group),
+            arrays=Hdf5ArraysProxy(group),
+        )
+
+    def __getitem__(self, name):
+        try:
+            return self.create_dataset(name)
+        except ValueError:
+            return self.require_dataset(name)
+    
+    def __setitem__(self, name, value):
+        if not isinstance(value, Dataset): 
+            raise ValueError("Value should be a Dataset object.")
+        self[name] = value
+        
+    def __contains__(self, name):
+        return name in self._file.keys()
+
+    def keys(self):
+        return self._file.keys()
+
+    @property
+    def filename(self):
+        return self._file.filename
+    
+    @property
+    def datasets(self):
+        # should return paths where datasets were detected.
+        pass       
