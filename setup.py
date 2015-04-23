@@ -9,9 +9,62 @@
 
 from __future__ import absolute_import, division, print_function
 
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, Command
+from setuptools.command.build_py import build_py as BuildPyCommand
 from setuptools.command.test import test as TestCommand
+from distutils import log
+
+import os
 import sys
+import subprocess
+
+
+class IsmrmrdpyBuildSchemaCommand(Command):
+    """Custom build command generating the schema bindings."""
+    
+    description = 'Run pyxbgen on the ISMRMRD schema'
+    user_options = [
+        # The format is (long option, short option, description).
+        ('schema-location', 'u', 'Location of an entrypoint schema'),
+        ('module', 'm', 'Module name corresponding to an entrypoint schema'),
+        ('binding-root', None, 'Path where the bindings will be written'),
+    ]
+
+    def initialize_options(self):
+        """Set default values for options."""
+        # Each user option must be listed here with their default value.
+        self.schema_location = 'schema/ismrmrd.xsd'
+        self.module = 'schema'
+        self.binding_root = 'ismrmrdpy/backend'
+    
+    def finalize_options(self):
+        """Post-process options."""
+        if self.schema_location is not None:
+            assert os.path.exists(self.schema_location), (
+                'schema file {} does not exist'.format(self.schema_location))
+    
+    def run(self):
+        """Run command."""
+        if sys.version_info[0] < 3:
+            command = ['pyxbgen']
+        else:
+            command = ['pyxbgen-py3']
+        command.append('--schema-location={}'.format(self.schema_location))
+        command.append('--module={}'.format(self.module))
+        command.append('--binding-root={}'.format(self.binding_root))        
+        self.announce(
+            'Running command: {}'.format(command),
+            level=log.INFO,
+        )
+        subprocess.check_call(command)
+
+
+class IsmrmrdpyBuildPyCommand(BuildPyCommand):
+  """Custom build command."""
+
+  def run(self):
+    self.run_command('build_schema')
+    BuildPyCommand.run(self)
 
 
 class IsmrmrdpyTestCommand(TestCommand):
@@ -51,10 +104,17 @@ setup(
         ],
     packages=find_packages(exclude=['tests',]),
     install_requires=[
+        'enum34',
+        'bitarray',
+        'h5py >= 2.3',
         'numpy',
-        'h5py>=2.3',
-        'bitarray'
+        'pyxb >= 1.2.4',
     ],
+    setup_requires=['pyxb>=1.2.4'],
     tests_require=['pytest'],
-    cmdclass = {'test': IsmrmrdpyTestCommand},
+    cmdclass = {
+        'build_py': IsmrmrdpyBuildPyCommand,
+        'build_schema': IsmrmrdpyBuildSchemaCommand,
+        'test': IsmrmrdpyTestCommand,
+    },
 )
