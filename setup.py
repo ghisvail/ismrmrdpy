@@ -25,9 +25,9 @@ class IsmrmrdpyBuildSchemaCommand(Command):
     description = 'Run pyxbgen on the ISMRMRD schema'
     user_options = [
         # The format is (long option, short option, description).
-        ('schema-location', 'u', 'Location of an entrypoint schema'),
-        ('module', 'm', 'Module name corresponding to an entrypoint schema'),
-        ('binding-root', None, 'Path where the bindings will be written'),
+        ('schema-location=', 'u', 'Location of an entrypoint schema'),
+        ('module=', 'm', 'Module name corresponding to an entrypoint schema'),
+        ('binding-root=', None, 'Path where the bindings will be written'),
     ]
 
     def initialize_options(self):
