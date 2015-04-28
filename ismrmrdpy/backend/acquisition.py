@@ -144,7 +144,7 @@ def deserialize_object(bytestring):
 
 def set_flags(header, flags=None):
     """Utility function for management of flag related metadata."""
-    bitmask = BitmaskWrapper(header['flags'])    
+    bitmask = BitmaskWrapper(header['flags'])
     if flags is not None:
         _verify_flags(flags)
         bitmask.set([flag-1 for flag in flags])
@@ -153,7 +153,7 @@ def set_flags(header, flags=None):
     
 def clear_flags(header, flags=None):
     """Utility function for management of flag related metadata."""
-    bitmask = BitmaskWrapper(header['flags'])    
+    bitmask = BitmaskWrapper(header['flags'])
     if flags is not None:
         _verify_flags(flags)
         bitmask.clear([flag-1 for flag in flags])
